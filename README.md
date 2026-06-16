@@ -1,10 +1,11 @@
-# InkyPi 
+# InkyPi-Amous 
 
 <img src="./docs/images/inky_clock.jpg" />
 
+> **InkyPi-Amous** is a personal edition maintained by [@AmousQiu](https://github.com/AmousQiu), forked from the excellent [InkyPi](https://github.com/fatihak/InkyPi) by [@fatihak](https://github.com/fatihak). All credit for the original project goes to the upstream authors.
 
-## About InkyPi 
-InkyPi is an open-source, customizable E-Ink display powered by a Raspberry Pi. Designed for simplicity and flexibility, it allows you to effortlessly display the content you care about, with a simple web interface that makes setup and configuration effortless.
+## About InkyPi-Amous 
+InkyPi-Amous is an open-source, customizable E-Ink display powered by a Raspberry Pi. Designed for simplicity and flexibility, it allows you to effortlessly display the content you care about, with a simple web interface that makes setup and configuration effortless.
 
 **Features**:
 - Natural paper-like aethetic: crisp, minimalist visuals that are easy on the eyes, with no glare or backlight

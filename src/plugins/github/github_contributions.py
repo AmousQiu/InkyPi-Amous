@@ -1,13 +1,17 @@
 import requests
 import logging
-from datetime import datetime, date, timedelta
+import calendar
+from datetime import datetime, date, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
+# Sunday-first weekday labels, matching the calendar grid built below.
+WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
 GRAPHQL_QUERY = """
-query($username: String!) {
+query($username: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $username) {
-    contributionsCollection {
+    contributionsCollection(from: $from, to: $to) {
       contributionCalendar {
         totalContributions
         weeks {
@@ -36,14 +40,16 @@ def contributions_generate_image(plugin_instance, settings, device_config):
     if not github_username:
         raise RuntimeError("GitHub username is required.")
 
-    data = fetch_contributions(github_username, api_key)
-    grid, month_positions = parse_contributions(data, colors)
-    metrics = calculate_metrics(data)
+    today = date.today()
+    counts = fetch_contributions(github_username, api_key, today.year, today.month)
+    weeks = build_month_grid(today.year, today.month, counts, colors, today)
+    metrics = calculate_metrics(counts, today.year, today.month, today)
 
     template_params = {
         "username": github_username,
-        "grid": grid,
-        "month_positions": month_positions,
+        "weeks": weeks,
+        "weekday_labels": WEEKDAY_LABELS,
+        "month_label": date(today.year, today.month, 1).strftime("%B %Y"),
         "metrics": metrics,
         "plugin_settings": settings
     }
@@ -59,19 +65,43 @@ def contributions_generate_image(plugin_instance, settings, device_config):
 # Helper functions
 # -------------------------
 
-def fetch_contributions(username, api_key):
+def fetch_contributions(username, api_key, year, month):
+    """Fetch the contribution counts for a single month, keyed by ISO date."""
+    last_day = calendar.monthrange(year, month)[1]
+    start = datetime(year, month, 1, tzinfo=timezone.utc)
+    end = datetime(year, month, last_day, 23, 59, 59, tzinfo=timezone.utc)
+    # The GitHub API rejects a `to` in the future, so clamp to now.
+    now = datetime.now(timezone.utc)
+    if end > now:
+        end = now
+
     url = "https://api.github.com/graphql"
     headers = {"Authorization": f"Bearer {api_key}"}
-    variables = {"username": username}
+    variables = {
+        "username": username,
+        "from": start.isoformat(),
+        "to": end.isoformat(),
+    }
     resp = requests.post(url, json={"query": GRAPHQL_QUERY, "variables": variables}, headers=headers, timeout=30)
     resp.raise_for_status()
-    return resp.json()
+    payload = resp.json()
+    if payload.get("errors"):
+        raise RuntimeError(f"GitHub API error: {payload['errors']}")
 
-def parse_contributions(data, colors):
-    weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
+    weeks = payload["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
+    counts = {}
+    for week in weeks:
+        for day in week["contributionDays"]:
+            counts[day["date"]] = day["contributionCount"]
+    return counts
 
-    grid = [list(week["contributionDays"]) for week in weeks]
-    max_contrib = max(day["contributionCount"] for week in grid for day in week)
+def build_month_grid(year, month, counts, colors, today):
+    """Build a Sunday-first calendar grid (weeks of day cells) for the month."""
+    in_month_counts = [
+        count for iso, count in counts.items()
+        if iso.startswith(f"{year:04d}-{month:02d}-")
+    ]
+    max_contrib = max(in_month_counts) if in_month_counts else 0
 
     def get_color(count):
         if max_contrib == 0 or count == 0:
@@ -79,39 +109,37 @@ def parse_contributions(data, colors):
         level = int((count / max_contrib) * (len(colors) - 1))
         return colors[max(1, level)]
 
-    for week in grid:
-        for day in week:
-            day["color"] = get_color(day["contributionCount"])
+    cal = calendar.Calendar(firstweekday=6)  # 6 = Sunday
+    weeks = []
+    for week in cal.monthdatescalendar(year, month):
+        row = []
+        for d in week:
+            in_month = d.month == month
+            is_future = d > today
+            count = counts.get(d.isoformat(), 0)
+            row.append({
+                "date": d.isoformat(),
+                "day": d.day,
+                "count": count,
+                "color": get_color(count),
+                "in_month": in_month,
+                "is_future": is_future,
+            })
+        weeks.append(row)
+    return weeks
 
-    month_positions = []
-    seen_months = set()
-    for i, week in enumerate(weeks):
-        first_day = week["contributionDays"][0]["date"]
-        dt = datetime.strptime(first_day, "%Y-%m-%d")
-        month_year = f"{dt.strftime('%b')}-{dt.year}"
-        if month_year not in seen_months:
-            month_positions.append({"name": dt.strftime("%b"), "index": i})
-            seen_months.add(month_year)
+def calculate_metrics(counts, year, month, today):
+    prefix = f"{year:04d}-{month:02d}-"
+    days = sorted((iso, count) for iso, count in counts.items() if iso.startswith(prefix))
 
-    if month_positions:
-        month_positions.pop(0)
-
-    return grid, month_positions
-
-def calculate_metrics(data):
-    weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
-    days = [day for week in weeks for day in week["contributionDays"]]
-    days = sorted(days, key=lambda d: d["date"])
-
-    total = sum(day["contributionCount"] for day in days)
+    total = sum(count for _, count in days)
     streak, longest_streak, current_streak = 0, 0, 0
-    today = date.today()
     yesterday = today - timedelta(days=1)
     in_current_streak = False
 
-    for day in days:
-        day_date = date.fromisoformat(day["date"])
-        if day["contributionCount"] > 0:
+    for iso, count in days:
+        day_date = date.fromisoformat(iso)
+        if count > 0:
             streak += 1
             longest_streak = max(longest_streak, streak)
             if day_date in (today, yesterday) or in_current_streak:

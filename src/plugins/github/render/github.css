@@ -1,15 +1,72 @@
+/* Sunday-first month calendar. Cells are sized in viewport units (not %),
+   because the render is a fixed window-size screenshot, so this fits the
+   display in both orientations without overflowing. */
+.month-section {
+    --cell: min(11dvw, 9dvh);
+    --cell-gap: min(0.9dvw, 0.9dvh);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8dvh;
+}
+
+.month-heading {
+    font-size: min(5dvw, 5dvh);
+    font-weight: bold;
+    text-align: center;
+}
+
+.weekday-row {
+    display: grid;
+    grid-template-columns: repeat(7, var(--cell));
+    gap: var(--cell-gap);
+}
+
+.weekday-header {
+    width: var(--cell);
+    text-align: center;
+    font-weight: bold;
+    font-size: min(3dvw, 3dvh);
+}
+
 .calendar-grid {
     display: grid;
-    grid-template-columns: auto repeat(53, minmax(0, 1fr));
-    grid-template-rows: auto repeat(7, 1fr);
-    gap: 0.3vw;
-    width: 100%;
+    grid-template-columns: repeat(7, var(--cell));
+    grid-auto-rows: var(--cell);
+    gap: var(--cell-gap);
 }
 
 .day {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 0.3vw;
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: min(0.8dvw, 0.8dvh);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: min(0.6dvw, 0.6dvh);
+}
+
+.day-number {
+    font-size: min(2.8dvw, 2.8dvh);
+    font-weight: 600;
+    line-height: 1;
+    color: #1b1f23;
+    /* White halo keeps the number legible on any contribution color. */
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+}
+
+.day.empty {
+    background-color: transparent;
+}
+
+.day.future {
+    background-color: transparent;
+    border: 1px dashed rgba(0, 0, 0, 0.25);
+}
+
+.day.future .day-number {
+    color: rgba(0, 0, 0, 0.4);
+    text-shadow: none;
 }
 
 .title {
@@ -24,7 +81,7 @@
 .github-container {
     display: flex;
     flex-direction: column;
-    gap: 5dvh;
+    gap: 3dvh;
     font-family: "Jost";
 }
 
@@ -32,12 +89,6 @@
     width: 1.1em;
     height: 1.1em;
     fill: currentColor; 
-}
-
-.month-label {
-    font-size: min(3dvw, 3dvh);
-    font-weight: bold;
-    text-align: left;
 }
 
 .metric-container {

@@ -17,34 +17,32 @@
         {% endfor %}
     </div>
 
-    <div class="calendar-grid">
-      <!-- Month labels -->
-      {% for label in month_positions %}
-        {% set idx = loop.index0 %}
-        {# Count consecutive weeks from label.index at start of this month #}
-        {% set start = label.index %}
-        {% set next_label_idx = month_positions[idx + 1].index if idx + 1 < month_positions|length else grid|length %}
-        {% set col_span = next_label_idx - start %}
-        {% if col_span >= 3 %}
-          <div class="month-label"
-              style="grid-column-start: {{ start + 2 }}; grid-row-start: 1;">
-            {{ label.name }}
-          </div>
-        {% endif %}
-      {% endfor %}
-      <!-- Contribution squares -->
-      {% for week in grid %}
-        {% set week_idx = loop.index0 %}
-        {% for day in week %}
-          {% set day_idx = loop.index0 %}
-          {% set count = day['contributionCount'] %}
-          <div class="day" style="background-color: {{day['color']}}; grid-column-start: {{ week_idx + 2 }}; grid-row-start: {{ day_idx + 2 }};"
-              title="{{ day['date'] }}: {{ count }}">
-          </div>
+    <div class="month-section">
+      <div class="month-heading">{{ month_label }}</div>
+      <div class="weekday-row">
+        {% for label in weekday_labels %}
+          <div class="weekday-header">{{ label }}</div>
         {% endfor %}
-      {% endfor %}
+      </div>
+      <div class="calendar-grid">
+        {% for week in weeks %}
+          {% for day in week %}
+            {% if not day.in_month %}
+              <div class="day empty"></div>
+            {% elif day.is_future %}
+              <div class="day future" title="{{ day.date }}">
+                <span class="day-number">{{ day.day }}</span>
+              </div>
+            {% else %}
+              <div class="day" style="background-color: {{ day.color }};"
+                   title="{{ day.date }}: {{ day.count }}">
+                <span class="day-number">{{ day.day }}</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </div>
     </div>
-</div>  
+</div>
 
 {% endblock %}
-

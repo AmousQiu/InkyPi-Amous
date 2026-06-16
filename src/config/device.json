@@ -1,0 +1,140 @@
+{
+    "name": "InkyPi-Amous",
+    "orientation": "horizontal",
+    "inverted_image": false,
+    "scheduler_sleep_time": 60,
+    "startup": false,
+    "resolution": [
+        800,
+        480
+    ],
+    "playlist_config": {
+        "playlists": [
+            {
+                "name": "Default",
+                "start_time": "00:00",
+                "end_time": "24:00",
+                "plugins": [
+                    {
+                        "plugin_id": "weather",
+                        "name": "weather",
+                        "plugin_settings": {
+                            "latitude": "44.71941709214612",
+                            "longitude": "-63.5943603515625",
+                            "weatherProvider": "OpenMeteo",
+                            "units": "metric",
+                            "titleSelection": "custom",
+                            "customTitle": "",
+                            "displayRefreshTime": "true",
+                            "displayMetrics": "true",
+                            "displayGraph": "true",
+                            "displayForecast": "true",
+                            "forecastDays": "7",
+                            "selectedFrame": "Top and Bottom",
+                            "topMargin": "",
+                            "bottomMargin": "",
+                            "leftMargin": "",
+                            "rightMargin": "",
+                            "backgroundOption": "color",
+                            "backgroundColor": "#ffffff",
+                            "textColor": "#000000"
+                        },
+                        "refresh": {
+                            "interval": 600
+                        },
+                        "latest_refresh_time": "2026-06-16T14:40:10.635636+00:00"
+                    },
+                    {
+                        "plugin_id": "calendar",
+                        "name": "calendar",
+                        "plugin_settings": {
+                            "calendarColors[]": [
+                                "#007bff",
+                                "#ff0000"
+                            ],
+                            "calendarURLs[]": [
+                                "https://calendar.google.com/calendar/ical/amousqiu%40gmail.com/private-0c7e05c6d002bcbde4a1f6ee907d31e4/basic.ics",
+                                "https://calendar.google.com/calendar/ical/67f462199bbd1657cbd6fb37fdb5d19d977d6666e0150079c9534f3a022e2fed%40group.calendar.google.com/private-bb85bf19b3aafbc817d4d3c43a8eae63/basic.ics"
+                            ],
+                            "viewMode": "timeGridWeek",
+                            "language": "en",
+                            "displayTitle": "true",
+                            "displayWeekends": "true",
+                            "displayEventTime": "true",
+                            "nowIndicatorColor": "#000000",
+                            "weekStartDay": "1",
+                            "startTimeInterval": "",
+                            "endTimeInterval": "",
+                            "fontSize": "normal",
+                            "selectedFrame": "Rectangle",
+                            "topMargin": "",
+                            "bottomMargin": "",
+                            "leftMargin": "",
+                            "rightMargin": "",
+                            "backgroundOption": "color",
+                            "backgroundColor": "#ffffff",
+                            "textColor": "#000000"
+                        },
+                        "refresh": {
+                            "interval": 300
+                        },
+                        "latest_refresh_time": "2026-01-06T16:32:08.230863+00:00"
+                    },
+                    {
+                        "plugin_id": "github",
+                        "name": "github",
+                        "plugin_settings": {
+                            "githubType": "contributions",
+                            "githubUsername": "AmousQiu",
+                            "githubRepository": "",
+                            "contributionColor[]": [
+                                "#ebedf0",
+                                "#9be9a8",
+                                "#40c463",
+                                "#30a14e",
+                                "#216e39"
+                            ],
+                            "selectedFrame": "None",
+                            "topMargin": "",
+                            "bottomMargin": "",
+                            "leftMargin": "",
+                            "rightMargin": "",
+                            "backgroundOption": "color",
+                            "backgroundColor": "#ffffff",
+                            "textColor": "#000000"
+                        },
+                        "refresh": {
+                            "interval": 7200
+                        },
+                        "latest_refresh_time": "2026-01-06T16:26:18.045522+00:00"
+                    },
+                    {
+                        "plugin_id": "image_upload",
+                        "name": "slogan",
+                        "plugin_settings": {
+                            "padImage": "true",
+                            "backgroundOption": "blur",
+                            "backgroundColor": "#ffffff",
+                            "imageFiles[]": [
+                                "/usr/local/inkypi/src/static/images/saved/61ICtBcz-jL._AC_SL1500_.jpg"
+                            ],
+                            "image_index": 0
+                        },
+                        "refresh": {
+                            "interval": 86400
+                        },
+                        "latest_refresh_time": "2026-01-06T16:49:57.323125+00:00"
+                    }
+                ],
+                "current_plugin_index": 0
+            }
+        ],
+        "active_playlist": "Default"
+    },
+    "refresh_info": {
+        "refresh_time": "2026-06-16T15:00:33.426058+00:00",
+        "image_hash": "3489b6193e4c8760e99c5b0ac701442f66ebe5476554325f6fec7228125e3333",
+        "refresh_type": "Manual Update",
+        "plugin_id": "github"
+    }
+}
